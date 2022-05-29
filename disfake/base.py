@@ -81,15 +81,10 @@ class Base:
             return random.choice(args)
 
         elif origin is Union:
-            if self._optional(value):
-                # FIXME: None should only be returned here if sparse is True
+            if self._optional(value) and self.sparse:
                 return None
-            # FIXME: This is completely wrong, `None in args` will always be False
-            # ref: self._optional(value), additionally this would always cause a sparse object
-            # to be generated even if sparse is False
-            return (
-                None if None in args else self._generate_field(key, random.choice(args))
-            )
+            return self._generate_field(key, random.choice(args))
+
         elif origin is NotRequired:
             if self.sparse:
                 # MISSING will cause the field to be skipped
@@ -99,7 +94,8 @@ class Base:
 
         elif issubclass(origin, Sequence):
             # If the origin is a Sequence, generate a list
-            # FIXME: Explain this is technically wrong but works in this use case
+            # This is type agnostic, which is technically wrong because it causes
+            # Sequences to be treated as Lists
             return self._generate_list(key, args[0])
 
         elif origin is dict:
