@@ -51,9 +51,11 @@ class Base:
         self.sparse = sparse
 
     def _not_required(self, type_) -> bool:
+        # Check if type is NotRequired
         return typing_extensions.get_origin(type_) is NotRequired
 
     def _optional(self, type_) -> bool:
+        # Check if type is Optional
         return type(None) in typing_extensions.get_args(type_)
 
     def _generate_primitive(self, type_: Type[T]) -> T:
@@ -69,33 +71,46 @@ class Base:
         args = typing_extensions.get_args(value)
 
         if origin is None:
+            # Generics don't have an origin, this includes TypedDict and "primitives"
             if typing_extensions.is_typeddict(value):
                 return self._generate(value)
             return self._generate_primitive(value)
 
         elif origin is Literal:
+            # Pick a random arg of the Literal
             return random.choice(args)
 
         elif origin is Union:
             if self._optional(value):
+                # FIXME: None should only be returned here if sparse is True
                 return None
+            # FIXME: This is completely wrong, `None in args` will always be False
+            # ref: self._optional(value), additionally this would always cause a sparse object
+            # to be generated even if sparse is False
             return (
                 None if None in args else self._generate_field(key, random.choice(args))
             )
         elif origin is NotRequired:
             if self.sparse:
+                # MISSING will cause the field to be skipped
                 return MISSING
+            # Else cause an empty field or generate the arg
             return random.choice([MISSING, self._generate_field(key, args[0])])
 
         elif issubclass(origin, Sequence):
+            # If the origin is a Sequence, generate a list
+            # FIXME: Explain this is technically wrong but works in this use case
             return self._generate_list(key, args[0])
 
         elif origin is dict:
+            # A type hint for a dict is pretty useless because no information about it can be inferred
+            # We return an empty dict and hope for the best
             return {}
 
         return MISSING
 
     def generate_union(self, type_: Any) -> Any:
+        # This works as an entry point generator for unions
         if len(typing.get_args(type_)) > 1:
             return [self._generate(arg) for arg in typing.get_args(type_)]
 
@@ -151,13 +166,22 @@ class Base:
             raise RuntimeError((f"Missing required keys: {required_keys - data.keys()}. This is a bug, please report it."))  # type: ignore
 
     def _get_type_hints(self, type_: Type) -> Dict[str, Any]:
+        # I'm not really sure as to if there is a better way to do this
+
+        # Get the module
         module = inspect.getmodule(type_)
         if module:
+            # Because it is already initialized we can now set typing.TYPE_CHECKING to True
             typing.TYPE_CHECKING = True
 
             try:
                 importlib.reload(module)
+                # Reload it, which allows all the imports to be reevaluated
             finally:
                 typing.TYPE_CHECKING = False
+
+        # If we would not do this there would be missing globals that are needed to evaluate the type hints
+        # This is only needed because of potential `from __future__ import annotations` imports
         globals_ = module.__dict__
         return typing.get_type_hints(type_, globals_)
+        # TODO: Check if using typing_extensions.get_type_hints works better with special types
