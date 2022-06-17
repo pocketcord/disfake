@@ -33,6 +33,32 @@ class _Missing:
 MISSING = _Missing()
 
 
+def _get_type_hints(type_: Type) -> Dict[str, Any]:
+    # I'm not really sure as to if there is a better way to do this
+
+    # Get the module
+    module = inspect.getmodule(type_)
+    globals_ = _get_globals(module)
+    return typing.get_type_hints(type_, globals_)
+
+
+def _get_globals(module):
+    if module:
+        # Because it is already initialized we can now set typing.TYPE_CHECKING to True
+        typing.TYPE_CHECKING = True
+
+        try:
+            importlib.reload(module)
+            # Reload it, which allows all the imports to be reevaluated
+        finally:
+            typing.TYPE_CHECKING = False
+
+    # If we would not do this there would be missing globals that are needed to evaluate the type hints
+    # This is only needed because of potential `from __future__ import annotations` imports
+    return module.__dict__
+    # TODO: Check if using typing_extensions.get_type_hints works better with special types
+
+
 class Base:
     def __init__(self, state: State, sparse: bool = True) -> None:
         """Generate a random object of the given type
@@ -83,9 +109,10 @@ class Base:
         elif origin is Union:
             if self._optional(value) and self.sparse:
                 return None
+
             return self._generate_field(key, random.choice(args))
 
-        elif origin is NotRequired:
+        elif self._not_required(value):
             if self.sparse:
                 # MISSING will cause the field to be skipped
                 return MISSING
@@ -126,7 +153,7 @@ class Base:
             The generated object
         """
 
-        typehints = self._get_type_hints(type_)
+        typehints = _get_type_hints(type_)
 
         data = {}
         for key, value in typehints.items():
@@ -160,24 +187,3 @@ class Base:
         }
         if not required_keys.issubset(data.keys()):
             raise RuntimeError((f"Missing required keys: {required_keys - data.keys()}. This is a bug, please report it."))  # type: ignore
-
-    def _get_type_hints(self, type_: Type) -> Dict[str, Any]:
-        # I'm not really sure as to if there is a better way to do this
-
-        # Get the module
-        module = inspect.getmodule(type_)
-        if module:
-            # Because it is already initialized we can now set typing.TYPE_CHECKING to True
-            typing.TYPE_CHECKING = True
-
-            try:
-                importlib.reload(module)
-                # Reload it, which allows all the imports to be reevaluated
-            finally:
-                typing.TYPE_CHECKING = False
-
-        # If we would not do this there would be missing globals that are needed to evaluate the type hints
-        # This is only needed because of potential `from __future__ import annotations` imports
-        globals_ = module.__dict__
-        return typing.get_type_hints(type_, globals_)
-        # TODO: Check if using typing_extensions.get_type_hints works better with special types

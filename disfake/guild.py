@@ -29,7 +29,7 @@ class Guild(Base):
 
     def _generate_field(self, key: str, value: Any):
         if value is Snowflake:
-            return self.state.snowflake()
+            return str(self.state.snowflake())
 
         if key.endswith("channel_id"):
             if not self.state.bool():
