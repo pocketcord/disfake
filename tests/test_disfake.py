@@ -33,5 +33,5 @@ def test_user(state: disfake.State):
 
 
 def test_guild(state: disfake.State):
-    user = disfake.Guild(state)
+    guild = disfake.Guild(state)
     _check("Guild", GuildData, user.generate())
