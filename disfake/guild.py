@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import TYPE_CHECKING, Any, List, Type, TypeVar
 
 from discord_typings import ChannelData, GuildData, GuildMemberData, TextChannelData
@@ -24,6 +25,7 @@ class Guild(Base):
     def _generate_channel(self, channel_type: Type[T]) -> T:
         channel = super()._generate(channel_type)  # type: ignore
         if channel.get("name") is not None:
+            channel["id"] = str(self.state.snowflake(10))
             channel["name"] = f"Channel {channel['id']}"  # type: ignore
         return channel
 
@@ -59,7 +61,7 @@ class Guild(Base):
         """
         self.channels = []
         guild = self._generate(GuildData)
-        members = []
+        members: List[GuildMemberData] = []
         user = User(self.state)
         for _ in range(10):
             member = super()._generate(GuildMemberData)
@@ -69,7 +71,9 @@ class Guild(Base):
         id_ = str(self.state.snowflake())
         guild["id"] = id_
         guild["name"] = f"Guild {id_}"
+        guild["owner_id"] = random.choice(members)["user"]["id"]
         guild.update(kwargs)  # type: ignore
+
         self.state.guilds.append(guild)
         self.state.channels[id_].extend(self.channels)
         self.state.members[id_].extend(members)

@@ -2,7 +2,7 @@ import hashlib
 import random
 from collections import defaultdict
 from datetime import datetime
-from typing import DefaultDict, Dict, List, Optional, TypeVar, Union
+from typing import DefaultDict, List, Optional, TypeVar, Union
 
 from discord_typings import ChannelData, GuildData, GuildMemberData
 
@@ -20,7 +20,6 @@ class State:
 
         self.worker: str = str(worker).zfill(5)
         self.process: str = str(process).zfill(5)
-        self._offset: Optional[int] = None
         self._now: Optional[float] = None
 
     def hash(self, value: int, /) -> str:
@@ -38,7 +37,7 @@ class State:
         """
         return hashlib.sha1(str(value).encode("utf-8")).hexdigest()
 
-    def snowflake(self) -> int:
+    def snowflake(self, offset: int = 0) -> int:
         """Generate a snowflake from the current time
 
         Returns
@@ -46,7 +45,7 @@ class State:
         int
             The snowflake generated
         """
-        now = (self._now or datetime.now().timestamp()) + (self._offset or 0)
+        now = (self._now or datetime.now().timestamp()) + (offset)
 
         # Cursed black magic
         # Ref: https://discord.dev/reference#snowflakes
