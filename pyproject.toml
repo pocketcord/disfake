@@ -16,6 +16,11 @@ pre-commit = "^2.19.0"
 pytest = "^7.1.2"
 typeguard = "^2.13.3"
 pytest-cov = "^3.0.0"
+pyright = "^1.1.256"
+
+[tool.pyright]
+typeCheckingMode = "strict"
+include = ["disfake"]
 
 [tool.isort]
 profile = "black"

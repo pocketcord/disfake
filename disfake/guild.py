@@ -23,7 +23,7 @@ class Guild(Base):
         self.channels: List[ChannelData] = []
 
     def _generate_channel(self, channel_type: Type[T]) -> T:
-        channel = super()._generate(channel_type)  # type: ignore
+        channel = super()._generate(channel_type)
         if channel.get("name") is not None:
             channel["id"] = str(self.state.snowflake(10))
             channel["name"] = f"Channel {channel['id']}"  # type: ignore
@@ -71,7 +71,7 @@ class Guild(Base):
         id_ = str(self.state.snowflake())
         guild["id"] = id_
         guild["name"] = f"Guild {id_}"
-        guild["owner_id"] = random.choice(members)["user"]["id"]
+        guild["owner_id"] = random.choice(members)["user"]["id"]  # type: ignore
         guild.update(kwargs)  # type: ignore
 
         self.state.guilds.append(guild)

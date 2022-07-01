@@ -1,10 +1,12 @@
+from typing import Any, Dict
+
 from discord_typings import UserData
 
 from .base import Base
 
 
 class User(Base):
-    def generate(self, **kwargs) -> UserData:
+    def generate(self, **kwargs: Dict[str, Any]) -> UserData:
         """Generate a fake user
 
         Returns

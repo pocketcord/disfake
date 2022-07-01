@@ -4,16 +4,19 @@ import importlib
 import inspect
 import random
 import typing
+from types import ModuleType
 from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
     List,
     Literal,
+    Optional,
     Sequence,
     Type,
     TypeVar,
     Union,
+    cast,
 )
 
 import typing_extensions
@@ -33,7 +36,7 @@ class _Missing:
 MISSING = _Missing()
 
 
-def _get_type_hints(type_: Type) -> Dict[str, Any]:
+def _get_type_hints(type_: Type[Any]) -> Dict[str, Any]:
     # I'm not really sure as to if there is a better way to do this
 
     # Get the module
@@ -42,7 +45,7 @@ def _get_type_hints(type_: Type) -> Dict[str, Any]:
     return typing.get_type_hints(type_, globals_)
 
 
-def _get_globals(module):
+def _get_globals(module: Optional[ModuleType]):
     if module:
         # Because it is already initialized we can now set typing.TYPE_CHECKING to True
         typing.TYPE_CHECKING = True
@@ -76,11 +79,11 @@ class Base:
         self.state = state
         self.sparse = sparse
 
-    def _not_required(self, type_) -> bool:
+    def _not_required(self, type_: Type[Any]) -> bool:
         # Check if type is NotRequired
         return typing_extensions.get_origin(type_) is NotRequired
 
-    def _optional(self, type_) -> bool:
+    def _optional(self, type_: Type[Any]) -> bool:
         # Check if type is Optional
         return type(None) in typing_extensions.get_args(type_)
 
@@ -90,9 +93,9 @@ class Base:
     def _generate_list(self, key: str, type_: Type[T]) -> List[T]:
         if self.sparse:
             return []
-        return [self._generate_field(key, type_) for _ in range(random.randint(1, 5))]  # type: ignore
+        return [self._generate_field(key, type_) for _ in range(random.randint(1, 5))]
 
-    def _generate_field(self, key: str, value: Any):
+    def _generate_field(self, key: str, value: Any) -> Any:
         origin = typing_extensions.get_origin(value)
         args = typing_extensions.get_args(value)
 
@@ -163,9 +166,9 @@ class Base:
 
         self._check_obj(typehints, data)
 
-        return data  # type: ignore
+        return cast(TD, data)
 
-    def _check_obj(self, typehints: dict, data: dict) -> None:
+    def _check_obj(self, typehints: Dict[str, Any], data: Dict[str, Any]) -> None:
         """Check that all required fields are present
 
         Parameters
@@ -186,4 +189,8 @@ class Base:
             if typing.get_origin(value) is not NotRequired
         }
         if not required_keys.issubset(data.keys()):
-            raise RuntimeError((f"Missing required keys: {required_keys - data.keys()}. This is a bug, please report it."))  # type: ignore
+            raise RuntimeError(
+                (
+                    f"Missing required keys: {required_keys - data.keys()}. This is a bug, please report it."
+                )
+            )
