@@ -6,6 +6,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: teaishealty/disfake/.github/setup.yaml
+      - uses: actions/checkout@v2
+      - name: Setup environment
+        uses: ./.github/workflows/setup
       - name: Run Tests
         run: poetry run pytest
