@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import pytest
 import typeguard
 from discord_typings import GuildData, UserData
