@@ -3,16 +3,9 @@ on: [push, pull_request]
 
 
 jobs:
-  ci:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
-      - name: Install Dependencies
-        run: poetry install
+      - uses: teaishealty/disfake/.github/setup.yaml
       - name: Run Tests
         run: poetry run pytest
