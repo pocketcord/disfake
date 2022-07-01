@@ -6,6 +6,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
@@ -13,8 +14,5 @@ jobs:
         uses: abatilo/actions-poetry@v2.0.0
       - name: Install Dependencies
         run: poetry install
-      - uses: actions/checkout@v2
-      - name: Setup environment
-        uses: ./.github/workflows/setup
       - name: Run Tests
         run: poetry run pytest
