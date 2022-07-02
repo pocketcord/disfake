@@ -79,3 +79,6 @@ class Guild(Base):
         self.state.members[id_].extend(members)
 
         return guild
+
+
+__all__ = ("Guild",)

@@ -65,3 +65,6 @@ class State:
             The boolean generated
         """
         return random.choice([True, False])
+
+
+__all__ = ("State",)

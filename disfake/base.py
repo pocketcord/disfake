@@ -194,3 +194,6 @@ class Base:
                     f"Missing required keys: {required_keys - data.keys()}. This is a bug, please report it."
                 )
             )
+
+
+__all__ = ("Base",)

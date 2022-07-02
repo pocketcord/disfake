@@ -23,3 +23,6 @@ class User(Base):
         }
         user.update(kwargs)  # type: ignore
         return user
+
+
+__all__ = ("User",)
