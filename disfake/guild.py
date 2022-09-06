@@ -3,8 +3,7 @@ from __future__ import annotations
 import random
 from typing import TYPE_CHECKING, Any, List, Type, TypeVar
 
-from discord_typings import ChannelData, GuildData, GuildMemberData, TextChannelData
-from discord_typings.shared import Snowflake
+from discord_typings import ChannelData, GuildData, GuildMemberData, TextChannelData, Snowflake
 
 from disfake.user import User
 
