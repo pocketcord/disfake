@@ -9,14 +9,14 @@ license = "MIT"
 python = "^3.8"
 discord-typings = "^0.5.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "^22.3.0"
 isort = "^5.10.1"
 pre-commit = "^2.19.0"
 pytest = "^7.1.2"
 typeguard = "^2.13.3"
-pytest-cov = "^3.0.0"
 pyright = "^1.1.256"
+pytest-cov = "^4.0.0"
 
 [tool.pyright]
 typeCheckingMode = "strict"
