@@ -1,36 +1,20 @@
-from typing import Tuple
-
 import pytest
-from discord_typings import GuildData
 
 import disfake
+from disfake.core.cache import users, Key
+import disfake.http.guild
+from disfake.core.snowflake import Snowflake
 
 
 @pytest.fixture
-def state_guild():
-    state = disfake.State(0, 0)
-    return state, disfake.Guild(state).generate()
+def snowflake():
+    return Snowflake(0, 0)
 
 
-def test_owner_coherence(state_guild: Tuple[disfake.State, GuildData]):
-    state, guild = state_guild
-    members = state.members[guild["id"]]
-    assert any(
-        member["user"]["id"] == guild["owner_id"] for member in members
-    ), "Owner not found in members"
+@pytest.fixture
+def guild(snowflake: Snowflake):
+    return disfake.http.guild.generate(snowflake)
 
 
-def test_member_coherence(state_guild: Tuple[disfake.State, GuildData]):
-    state, guild = state_guild
-    members = state.members[guild["id"]]
-    for member in members:
-        assert int(member["user"]["id"]) < int(
-            guild["id"]
-        ), "Member is newer than guild"
-
-
-def test_channel_coherence(state_guild: Tuple[disfake.State, GuildData]):
-    state, guild = state_guild
-    channels = state.channels[guild["id"]]
-    for channel in channels:
-        assert int(channel["id"]) > int(guild["id"]), "Channel is older than guild"
+def test_guild_owner(guild: disfake.http.guild.GuildData):
+    assert Key(None, guild["owner_id"]) in users, "Guild owner not in users cache"

@@ -1,22 +1,16 @@
 import hashlib
 import random
-from collections import defaultdict
 from datetime import datetime
-from typing import DefaultDict, List, Optional, TypeVar, Union
-
-from discord_typings import ChannelData, GuildData, GuildMemberData
+from typing import List, Optional, TypeVar, Union
 
 T = TypeVar("T")
 
 
-class State:
+class Snowflake:
     def __init__(self, worker: Union[int, str], process: Union[int, str]) -> None:
 
         # Result cache
         self.snowflakes: List[int] = []
-        self.members: DefaultDict[str, List[GuildMemberData]] = defaultdict(list)
-        self.channels: DefaultDict[str, List[ChannelData]] = defaultdict(list)
-        self.guilds: List[GuildData] = []
 
         self.worker: str = str(worker).zfill(5)
         self.process: str = str(process).zfill(5)
@@ -67,4 +61,4 @@ class State:
         return random.choice([True, False])
 
 
-__all__ = ("State",)
+__all__ = ("Snowflake",)
