@@ -7,16 +7,10 @@ Module to assist in creating fake discord objects for testing purposes.
 
 ```python
 from disfake.core.cache import users
-from disfake.core.snowflake import Snowflake
-from disfake.http import user, guild
+from disfake.http import guild
+from discord_typings import GuildData, UserData
 
 
-snowflake = Snowflake(worker=0, process=0)
-
-u = user.generate(snowflake)
-g = guild.generate(snowflake)
-
-print(users.get(g["owner_id"]))
-# {'id': '1036055620609900545', 'username': 'User 1036055620609900545', 'discriminator': '0545', 'avatar': None}
-
+my_guild: GuildData = guild.generate()
+owner: UserData = users.get(my_guild["owner_id"])
 ```

@@ -1,0 +1,5 @@
+formatter: ['black', '-']
+blacklist_patterns: []
+modules:
+- 'autotyping'
+repo_root: '.'

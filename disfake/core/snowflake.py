@@ -61,4 +61,20 @@ class Snowflake:
         return random.choice([True, False])
 
 
+def to_datetime(snowflake: int) -> datetime:
+    """Convert a snowflake to a datetime object
+
+    Parameters
+    ----------
+    snowflake : int
+        The snowflake to convert
+
+    Returns
+    -------
+    datetime
+        The datetime object
+    """
+    return datetime.fromtimestamp(((snowflake >> 22) + 1420070400000) / 1000)
+
+
 __all__ = ("Snowflake",)

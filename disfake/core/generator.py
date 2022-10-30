@@ -21,7 +21,6 @@ from typing import (
 import typing_extensions
 from typing_extensions import NotRequired, TypedDict
 
-
 T = TypeVar("T")
 TD = TypeVar("TD", bound=TypedDict)
 
@@ -72,13 +71,12 @@ def _generate_primitive(type_: Type[T]) -> T:
     return type_()
 
 
-def _generate_list(key: str, type_: Type[T], *, sparse: bool) -> List[T]:
-    if sparse:
-        return []
-    return [_generate_field(key, type_) for _ in range(random.randint(1, 5))]
+def _generate_list(key: str, type_: Type[T]) -> List[T]:
+
+    return []
 
 
-def _generate_field(key: str, value: Any, *, sparse: bool = True) -> Any:
+def _generate_field(key: str, value: Any) -> Any:
     origin = typing_extensions.get_origin(value)
     args = typing_extensions.get_args(value)
 
@@ -93,23 +91,16 @@ def _generate_field(key: str, value: Any, *, sparse: bool = True) -> Any:
         return random.choice(args)
 
     elif origin is Union:
-        if optional(value) and sparse:
-            return None
-
-        return _generate_field(key, random.choice(args))
+        return None
 
     elif not_required(value):
-        if sparse:
-            # MISSING will cause the field to be skipped
-            return MISSING
-        # Else cause an empty field or generate the arg
-        return random.choice([MISSING, _generate_field(key, args[0])])
+        return MISSING
 
     elif issubclass(origin, Sequence):
         # If the origin is a Sequence, generate a list
         # This is type agnostic, which is technically wrong because it causes all
         # Sequences to be treated as Lists
-        return _generate_list(key, args[0], sparse=sparse)
+        return _generate_list(key, args[0])
 
     elif origin is dict:
         # A type hint for a dict is pretty useless because no information about it can be inferred

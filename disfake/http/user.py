@@ -2,10 +2,13 @@ from typing import Any, Dict
 
 from discord_typings import UserData
 
+from ..core import cache
 from ..core.snowflake import Snowflake
 
 
-def generate(snowflake: Snowflake, **kwargs: Dict[str, Any]) -> UserData:
+def generate(
+    snowflake: Snowflake = cache.snowflake, **kwargs: Dict[str, Any]
+) -> UserData:
     """Generate a fake user
 
     Returns
