@@ -67,7 +67,7 @@ def _fill_emojis(guild: GuildData, emoji_count: int, *, snowflake: Snowflake) ->
             {
                 "id": str(id),
                 "name": f"emoji{id}",
-                "roles": [guild["roles"][0]["id"]],
+                "roles": [],
                 "user": owner,
                 "require_colons": True,
                 "managed": False,
