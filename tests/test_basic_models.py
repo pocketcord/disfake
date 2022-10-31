@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 import typeguard
-from discord_typings import GuildData, UserData
+from discord_typings import GuildData, UserData, GuildCreateData
 from typing_extensions import NotRequired, get_origin, is_typeddict
 
 from disfake.core.generator import (
@@ -10,6 +10,8 @@ from disfake.core.generator import (
 )
 from disfake.core.snowflake import Snowflake
 from disfake.http import guild, user
+
+from disfake.gateway.promotors import promote_guild
 
 
 def _check(
@@ -40,3 +42,7 @@ def test_user(snowflake: Snowflake) -> None:
 
 def test_guild(snowflake: Snowflake) -> None:
     _check("Guild", GuildData, guild.generate(snowflake))
+
+
+def test_promoted_guild() -> None:
+    _check("Guild", GuildCreateData, promote_guild(guild.generate()))
