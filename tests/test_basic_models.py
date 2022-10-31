@@ -2,16 +2,15 @@ from typing import Any
 
 import pytest
 import typeguard
-from discord_typings import GuildData, UserData, GuildCreateData
+from discord_typings import GuildCreateData, GuildData, UserData
 from typing_extensions import NotRequired, get_origin, is_typeddict
 
 from disfake.core.generator import (
     _get_type_hints,  # pyright: ignore[reportPrivateUsage]
 )
 from disfake.core.snowflake import Snowflake
-from disfake.http import guild, user
-
 from disfake.gateway.promotors import promote_guild
+from disfake.http import guild, user
 
 
 def _check(
