@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from freezegun import freeze_time
-
 from disfake.core.cache import snowflake
 from disfake.core.snowflake import to_datetime
 
