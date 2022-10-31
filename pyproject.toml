@@ -17,9 +17,12 @@ pytest = "^7.1.2"
 typeguard = "^2.13.3"
 pyright = "^1.1.256"
 pytest-cov = "^4.0.0"
+autotyping = "^22.9.0"
+inspection = "^1.1.0"
 
 [tool.pyright]
 typeCheckingMode = "strict"
+useLibraryCodeForTypes = true
 include = ["disfake"]
 
 [tool.isort]

@@ -5,6 +5,12 @@
 
 Module to assist in creating fake discord objects for testing purposes.
 
+```python
+from disfake.core.cache import users
+from disfake.http import guild
+from discord_typings import GuildData, UserData
 
 
-(Planned to be primarily used by [nextest](https://github.com/teaishealthy/nextest))
+my_guild: GuildData = guild.generate()
+owner: UserData = users.get(my_guild["owner_id"])
+```

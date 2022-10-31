@@ -1,36 +1,44 @@
-from typing import Tuple
-
 import pytest
-from discord_typings import GuildData
 
 import disfake
+import disfake.http.guild
+from disfake.core import cache
+from disfake.core.snowflake import Snowflake
 
 
 @pytest.fixture
-def state_guild():
-    state = disfake.State(0, 0)
-    return state, disfake.Guild(state).generate()
+def snowflake():
+    return Snowflake(0, 0)
 
 
-def test_owner_coherence(state_guild: Tuple[disfake.State, GuildData]):
-    state, guild = state_guild
-    members = state.members[guild["id"]]
-    assert any(
-        member["user"]["id"] == guild["owner_id"] for member in members
-    ), "Owner not found in members"
+@pytest.fixture
+def guild(snowflake: Snowflake):
+    return disfake.http.guild.generate(snowflake, member_count=1)
 
 
-def test_member_coherence(state_guild: Tuple[disfake.State, GuildData]):
-    state, guild = state_guild
-    members = state.members[guild["id"]]
-    for member in members:
-        assert int(member["user"]["id"]) < int(
-            guild["id"]
-        ), "Member is newer than guild"
+def test_guild_owner(guild: disfake.http.guild.GuildData) -> None:
+    user = cache.users.get(guild["owner_id"])
+    assert user is not None, "Guild owner not in global user cache"
+
+    members = cache.members.get(guild["id"])
+    assert members is not None, "Guild members unavailable"
+
+    assert members[0].get("user") == user, "Guild owner not in guild members"
 
 
-def test_channel_coherence(state_guild: Tuple[disfake.State, GuildData]):
-    state, guild = state_guild
-    channels = state.channels[guild["id"]]
-    for channel in channels:
-        assert int(channel["id"]) > int(guild["id"]), "Channel is older than guild"
+def test_everyone_role(guild: disfake.http.guild.GuildData) -> None:
+    assert guild["roles"][0]["name"] == "@everyone", "Guild roles[0] is not @everyone"
+
+    members = cache.members.get(guild["id"])
+    assert members is not None, "Guild members unavailable"
+
+    assert all(
+        member["roles"][0] == guild["id"] for member in members
+    ), "Guild members do not have @everyone role"
+
+
+def test_members(guild: disfake.http.guild.GuildData) -> None:
+    members = cache.members.get(guild["id"])
+    assert members is not None, "Guild members unavailable"
+
+    assert len(members) == 2, "Guild members not generated"
