@@ -1,15 +1,17 @@
 from typing import List, TypedDict
-from discord_typings import GuildData
+
 from discord_typings import (
-    VoiceStateData,
-    GuildMemberData,
-    GuildCreateData,
-    ThreadChannelData,
     ChannelCreateData,
-    UpdatePresenceData,
-    StageInstanceData,
+    GuildCreateData,
+    GuildData,
+    GuildMemberData,
     GuildScheduledEventData,
+    StageInstanceData,
+    ThreadChannelData,
+    UpdatePresenceData,
+    VoiceStateData,
 )
+
 from ..core import cache
 
 
