@@ -74,7 +74,8 @@ def to_datetime(snowflake: int) -> datetime:
     datetime
         The datetime object
     """
-    return datetime.fromtimestamp(((snowflake >> 22) + 1420070400000) / 1000)
+    timestamp = snowflake / 4194304 + 1420070400000
+    return datetime.fromtimestamp(timestamp / 1000.0)
 
 
 __all__ = ("Snowflake",)
