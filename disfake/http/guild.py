@@ -27,12 +27,17 @@ def _promote_to_member(u: UserData, guild_id: str) -> GuildMemberData:
 
 
 def _fill(
-    guild: GuildData, member_count: int, emoji_count: int, *, snowflake: Snowflake
+    guild: GuildData,
+    member_count: int,
+    emoji_count: int,
+    role_count: int,
+    *,
+    snowflake: Snowflake,
 ) -> None:
     guild["id"] = str(snowflake.snowflake())
     guild["name"] = f"Guild {guild['id']}"
 
-    _fill_roles(guild, snowflake=snowflake)
+    _fill_roles(guild, role_count, snowflake=snowflake)
     _fill_members(guild, member_count, snowflake=snowflake)
     _fill_emojis(guild, emoji_count, snowflake=snowflake)
 
@@ -49,12 +54,19 @@ def _fill_members(guild: GuildData, member_count: int, *, snowflake: Snowflake) 
         cache.members.add(guild["id"], _promote_to_member(member, guild["id"]))
 
 
-def _fill_roles(guild: GuildData, *, snowflake: Snowflake) -> None:
+def _fill_roles(guild: GuildData, role_count: int, *, snowflake: Snowflake) -> None:
     everyone = _generate(RoleData)
     everyone["id"] = guild["id"]
     everyone["name"] = "@everyone"
     everyone["permissions"] = "0"
     guild["roles"].append(everyone)
+
+    for _ in range(role_count):
+        role = _generate(RoleData)
+        role["id"] = str(snowflake.snowflake())
+        role["name"] = f"Role {role['id']}"
+        role["permissions"] = "0"
+        guild["roles"].append(role)
 
 
 def _fill_emojis(guild: GuildData, emoji_count: int, *, snowflake: Snowflake) -> None:
@@ -80,6 +92,7 @@ def generate(
     snowflake: Snowflake = cache.snowflake,
     member_count: int = 0,
     emoji_count: int = 0,
+    role_count: int = 0,
     **kwargs: Any,
 ) -> GuildData:
     """Generate a fake guild
@@ -95,6 +108,6 @@ def generate(
         The generated guild
     """
     guild = _generate(GuildData)
-    _fill(guild, member_count, emoji_count, snowflake=snowflake)
+    _fill(guild, member_count, emoji_count, role_count, snowflake=snowflake)
     guild.update(kwargs)  # type: ignore
     return guild
