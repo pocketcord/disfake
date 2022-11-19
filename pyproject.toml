@@ -12,13 +12,14 @@ discord-typings = "^0.5.1"
 [tool.poetry.group.dev.dependencies]
 black = "^22.3.0"
 isort = "^5.10.1"
-pre-commit = "^2.19.0"
-pytest = "^7.1.2"
-typeguard = "^2.13.3"
 pyright = "^1.1.256"
-pytest-cov = "^4.0.0"
 autotyping = "^22.9.0"
-inspection = "^1.1.0"
+pre-commit = "^2.19.0"
+
+pytest = "^7.1.2"
+pytest-cov = "^4.0.0"
+typeguard = "^2.13.3"
+
 
 [tool.pyright]
 typeCheckingMode = "strict"
