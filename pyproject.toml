@@ -5,9 +5,6 @@ description = "Module to assist in creating fake discord objects for testing pur
 authors = ["teaishealthy <teaishealthy@protonmail.com>"]
 license = "MIT"
 
-[tool.poetry.extras]
-docs = ["furo", "sphinxcontrib-trio"]
-
 [tool.poetry.dependencies]
 python = "^3.8"
 discord-typings = "^0.5.1"
