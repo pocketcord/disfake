@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import importlib
 import inspect
 import random
@@ -8,10 +9,12 @@ from types import ModuleType
 from typing import (
     Any,
     Dict,
+    Generic,
     List,
     Literal,
     Optional,
     Sequence,
+    Tuple,
     Type,
     TypeVar,
     Union,
@@ -32,17 +35,55 @@ class _Missing:
 MISSING = _Missing()
 
 
+def _resolve_bases(cls: type) -> List[type]:
+    _get_globals(inspect.getmodule(cls))
+    return cls.__orig_bases__  # type: ignore
+
+
 def _get_type_hints(type_: Type[Any]) -> Dict[str, Any]:
     # I'm not really sure as to if there is a better way to do this
 
-    # Get the module
-    module = inspect.getmodule(type_)
+    origin: Optional[type] = typing.get_origin(type_)
+
+    if origin is None:
+        origin = type_
+
+    module = inspect.getmodule(origin)
+    if Generic not in origin.__bases__:
+        globals_ = _get_globals(module)
+    else:
+        globals_ = _get_generic_globals(type_, origin, module)
+
+    return typing.get_type_hints(origin, globals_)
+
+
+def _get_generic_globals(type_: type, origin: type, module: Optional[ModuleType]):
+    bases = _resolve_bases(origin)  # Find the bases of the class
+    generic = next(base for base in bases if typing.get_origin(base) is Generic)
+    # Get the Generic[...] base
+    args: Tuple[TypeVar, ...] = typing.get_args(
+        generic
+    )  # Find the TypeVars in the Generic
+    mapping = dict(zip(args, typing.get_args(type_)))
+    names: Dict[str, TypeVar] = {arg.__name__: mapping[arg] for arg in args}
     globals_ = _get_globals(module)
-    return typing.get_type_hints(type_, globals_)
+
+    for key, value in globals_.items():
+        with contextlib.suppress(TypeError):
+            if isinstance(value, TypeVar):
+                globals_[key] = names[value.__name__]
+    return globals_
+
+
+cache: Dict[ModuleType, Dict[str, Any]] = {}
 
 
 def _get_globals(module: Optional[ModuleType]):
     if module:
+
+        if module in cache:
+            return cache[module]
+
         # Because it is already initialized we can now set typing.TYPE_CHECKING to True
         typing.TYPE_CHECKING = True
 
@@ -52,6 +93,7 @@ def _get_globals(module: Optional[ModuleType]):
         finally:
             typing.TYPE_CHECKING = False
 
+        cache[module] = module.__dict__
     # If we would not do this there would be missing globals that are needed to evaluate the type hints
     # This is only needed because of potential `from __future__ import annotations` imports
     return module.__dict__
