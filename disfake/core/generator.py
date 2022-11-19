@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-import functools
 import importlib
 import inspect
 import random
@@ -76,9 +75,15 @@ def _get_generic_globals(type_: type, origin: type, module: Optional[ModuleType]
     return globals_
 
 
-@functools.cache
+cache: Dict[ModuleType, Dict[str, Any]] = {}
+
+
 def _get_globals(module: Optional[ModuleType]):
     if module:
+
+        if module in cache:
+            return cache[module]
+
         # Because it is already initialized we can now set typing.TYPE_CHECKING to True
         typing.TYPE_CHECKING = True
 
@@ -88,6 +93,7 @@ def _get_globals(module: Optional[ModuleType]):
         finally:
             typing.TYPE_CHECKING = False
 
+        cache[module] = module.__dict__
     # If we would not do this there would be missing globals that are needed to evaluate the type hints
     # This is only needed because of potential `from __future__ import annotations` imports
     return module.__dict__
