@@ -5,6 +5,9 @@ description = "Module to assist in creating fake discord objects for testing pur
 authors = ["teaishealthy <teaishealthy@protonmail.com>"]
 license = "MIT"
 
+[tool.poetry.extras]
+docs = ["furo", "sphinxcontrib-trio"]
+
 [tool.poetry.dependencies]
 python = "^3.8"
 discord-typings = "^0.5.1"
@@ -20,6 +23,13 @@ pytest = "^7.1.2"
 pytest-cov = "^4.0.0"
 typeguard = "^2.13.3"
 
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^5.3.0"
+sphinxcontrib-trio = "^1.1.2"
+furo = "^2022.9.29"
 
 [tool.pyright]
 typeCheckingMode = "strict"
