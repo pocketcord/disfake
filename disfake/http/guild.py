@@ -19,7 +19,7 @@ def _promote_to_member(u: UserData, guild_id: str) -> GuildMemberData:
         "nick": None,
         "avatar": None,
         "roles": [guild_id],
-        "joined_at": joined_at.isoformat() + "Z",
+        "joined_at": joined_at.isoformat(),
         "deaf": False,
         "mute": False,
         "pending": False,
